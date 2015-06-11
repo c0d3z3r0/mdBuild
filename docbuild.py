@@ -113,7 +113,7 @@ def main():
     output.extend(markdown2Html('../README.md'))
     output.extend(markdown2Html('../GIT-Tutorial.md'))
     output.extend(markdown2Html('../TODO.md'))
-    output.appen('<h1>Infrastructure</h1>')
+    output.append('<h1>Infrastructure</h1>')
     output.extend(markdown2Html('../infrastructure/Server.md'))
     output.extend(markdown2Html('../infrastructure/Network.md'))
     output.extend(markdown2Html('../infrastructure/Containers.md'))
@@ -121,32 +121,28 @@ def main():
     output.extend(markdown2Html('../infrastructure/WebContainer.md'))
     output.extend(markdown2Html('../infrastructure/BuildChroot.md'))
     output.extend(markdown2Html('../docs/Infosites.md'))
-    output.appen('<h1>Challenges</h1>')
+    output.append('<h1>Challenges</h1>')
     output.extend(markdown2Html('../challenges/Challenges.md'))
 
-    categories = ['net', 'web']
-
-    for ch in os.listdir('../challenges'):
-        if not os.path.isdir('../challenges/' + ch) or \
-                ch in categories or re.match('^[\.@].*$', ch):
-            # no @dirs, .files
-            continue
-        output.extend(markdown2Html('../challenges/' + ch + '/README.md'))
-
+    categories = ['', 'net', 'web']
     for cat in categories:
-        for ch in os.listdir('../challenges/' + cat):
-            if not os.path.isdir('../challenges/' + cat + '/' + ch) \
-                    or re.match('^[\.@].*$', ch):
-                # no @dirs, .files
+        for root, dirs, files in os.walk('../challenges/'):
+            match = \
+                re.match('../challenges/(%s)/' %
+                         '|'.join([c for c in categories if c != cat]), root)
+            if (not cat and match) or (cat and not match):
                 continue
-            output.extend(markdown2Html('../challenges/' +
-                                        cat + '/' + ch + '/README.md'))
+            for file in files:
+                if not re.match('^.*?/[@.][^/]*/.*$', root) and \
+                        re.match("README.*\.md", file):
+                    output.extend(markdown2Html(os.path.join(root, file)))
 
     output.extend(getFooter())
     writeListToFile('CTF@HSO-Documentation.html', output)
     print('Generating the PDF will take some time. Please wait.')
     html2pdf('CTF@HSO-Documentation.html', 'CTF@HSO-Documentation',
              'CTF@HSO-Documentation.pdf')
+
 
 if __name__ == '__main__':
     main()
