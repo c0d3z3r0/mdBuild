@@ -116,6 +116,7 @@ def main():
     output.append('<h1>Infrastructure</h1>')
     output.extend(markdown2Html('../infrastructure/Server.md'))
     output.extend(markdown2Html('../infrastructure/Network.md'))
+    output.extend(markdown2Html('../infrastructure/CiscoCatalyst2960.md'))
     output.extend(markdown2Html('../infrastructure/Containers.md'))
     output.extend(markdown2Html('../infrastructure/NetContainer.md'))
     output.extend(markdown2Html('../infrastructure/WebContainer.md'))
