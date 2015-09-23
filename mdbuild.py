@@ -8,7 +8,7 @@ import sys
 import re
 import base64
 import subprocess
-
+import argparse
 
 def checkDependencies():
     dep = ['hoedown', 'wkhtmltopdf']
@@ -53,11 +53,9 @@ def getHeader():
 <!DOCTYPE html><html>
 <head>
 <meta charset="utf-8">
-<title>CTF@HSO Documentation</title>
+<title>%s</title>
 </head>
-<body>
-<h1 style='page-break-before: avoid;'>CTF@HSO Documentation</h1>
-""".splitlines(keepends=True))
+<body>""".splitlines(keepends=True))
 
     styles = readStyles([
         'style/GitHub2.css', 'style/prism.css', 'style/custom.css'
@@ -83,11 +81,15 @@ def getFooter():
 
 
 def markdown2Html(file):
-    md = subprocess.getoutput(
-        'hoedown --all-block --all-flags --all-negative --all-span ' +
-        file
-    ).splitlines(keepends=True)
+    md = ['\n\n']
+    md.extend(subprocess.getoutput(
+        'hoedown --all-block --all-flags --all-negative --all-span %s' % file
+    ).splitlines(keepends=True))
+
     for m in md:
+        if args.docs.index(file) == 0 and '<h1>' in m:
+            md[md.index(m)] = re.sub(
+                '<h1>', '<h1 style=\'page-break-before: avoid;\'>', m)
         if 'img src' in m:
             src = re.search('src="(.*?)"', m).group(1)
             ext = re.search('(?<=\.).{1,4}?$', src).group(0)
@@ -110,40 +112,19 @@ def main():
     output = []
     output.extend(getHeader())
 
-    output.extend(markdown2Html('../README.md'))
-    output.extend(markdown2Html('../GIT-Tutorial.md'))
-    output.extend(markdown2Html('../TODO.md'))
-    output.append('<h1>Infrastructure</h1>')
-    output.extend(markdown2Html('../infrastructure/Server.md'))
-    output.extend(markdown2Html('../infrastructure/Network.md'))
-    output.extend(markdown2Html('../infrastructure/CiscoCatalyst2960.md'))
-    output.extend(markdown2Html('../infrastructure/Containers.md'))
-    output.extend(markdown2Html('../infrastructure/NetContainer.md'))
-    output.extend(markdown2Html('../infrastructure/WebContainer.md'))
-    output.extend(markdown2Html('../infrastructure/BuildChroot.md'))
-    output.extend(markdown2Html('../docs/Infosites.md'))
-    output.append('<h1>Challenges</h1>')
-    output.extend(markdown2Html('../challenges/Challenges.md'))
-
-    categories = ['', 'net', 'web']
-    for cat in categories:
-        for root, dirs, files in os.walk('../challenges/'):
-            match = \
-                re.match('../challenges/(%s)/' %
-                         '|'.join([c for c in categories if c != cat]), root)
-            if (not cat and match) or (cat and not match):
-                continue
-            for file in files:
-                if not re.match('^.*?/[@.][^/]*/.*$', root) and \
-                        re.match("README.*\.md", file):
-                    output.extend(markdown2Html(os.path.join(root, file)))
+    for doc in args.docs:
+        output.extend(markdown2Html(doc))
 
     output.extend(getFooter())
-    writeListToFile('CTF@HSO-Documentation.html', output)
+    writeListToFile('%s.html' % args.output, output)
     print('Generating the PDF will take some time. Please wait.')
-    html2pdf('CTF@HSO-Documentation.html', 'CTF@HSO-Documentation',
-             'CTF@HSO-Documentation.pdf')
+    html2pdf('%s.html' % args.output, args.output, '%s.pdf' % args.output)
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='mdbuild')
+    parser.add_argument('output', help='output filename')
+    parser.add_argument('docs', nargs='+', help='documents to include')
+    args = parser.parse_args()
+
     main()

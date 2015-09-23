@@ -8,4 +8,7 @@
 	pre,code {
     page-break-inside: auto;
 	}
+	body {
+	  padding-top: 0px;
+	}
 }
