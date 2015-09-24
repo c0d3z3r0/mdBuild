@@ -120,7 +120,7 @@ def main():
 
     output.extend(getFooter())
 
-    if not args.html:
+    if not args.html and not args.both:
         writeListToFile('/tmp/%s.html' % out_fname, output)
         html2pdf('/tmp/%s.html' % out_fname, out_fname, '%s.pdf' % out_fname)
     if args.both:
