@@ -99,6 +99,8 @@ def markdown2Html(file):
             b64 = file2base64(os.path.dirname(file) + '/' + src)
             newimg = 'data:image/' + ext + ';base64,' + b64
             md[md.index(m)] = re.sub(src, newimg, m)
+        if 'language-sh' in m:
+            md[md.index(m)] = re.sub('language-sh', 'language-bash', m)
     return md
 
 
