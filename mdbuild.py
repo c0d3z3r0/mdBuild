@@ -10,6 +10,7 @@ import base64
 import subprocess
 import argparse
 
+
 def checkDependencies():
     dep = ['hoedown', 'wkhtmltopdf']
     missing = []
@@ -116,13 +117,24 @@ def main():
         output.extend(markdown2Html(doc))
 
     output.extend(getFooter())
-    writeListToFile('%s.html' % args.output, output)
-    print('Generating the PDF will take some time. Please wait.')
-    html2pdf('%s.html' % args.output, args.output, '%s.pdf' % args.output)
+
+    if not args.html:
+        writeListToFile('/tmp/%s.html' % args.output, output)
+        html2pdf('/tmp/%s.html' % args.output, args.output, '%s.pdf' % args.output)
+    if args.both:
+        writeListToFile('%s.html' % args.output, output)
+        html2pdf('%s.html' % args.output, args.output, '%s.pdf' % args.output)
+    elif args.html:
+        writeListToFile('%s.html' % args.output, output)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='mdbuild')
+    htmlpdf= parser.add_mutually_exclusive_group()
+    htmlpdf.add_argument('-t', '--html', action='store_true',
+                        help='create html only')
+    htmlpdf.add_argument('-b', '--both', action='store_true',
+                        help='create pdf and html')
     parser.add_argument('output', help='output filename')
     parser.add_argument('docs', nargs='+', help='documents to include')
     args = parser.parse_args()
