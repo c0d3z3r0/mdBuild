@@ -50,13 +50,15 @@ def readStyles(styles):
 
 def getHeader():
     header = []
-    header.extend("""\
+    header_html = """\
 <!DOCTYPE html><html>
 <head>
 <meta charset="utf-8">
 <title>%s</title>
 </head>
-<body>""".splitlines(keepends=True))
+<body>""" % out_fname
+
+    header.extend(header_html.splitlines(keepends=True))
 
     styles = readStyles([
         'style/GitHub2.css', 'style/prism.css', 'style/custom.css'
