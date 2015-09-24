@@ -119,13 +119,13 @@ def main():
     output.extend(getFooter())
 
     if not args.html:
-        writeListToFile('/tmp/%s.html' % args.output, output)
-        html2pdf('/tmp/%s.html' % args.output, args.output, '%s.pdf' % args.output)
+        writeListToFile('/tmp/%s.html' % out_fname, output)
+        html2pdf('/tmp/%s.html' % out_fname, out_fname, '%s.pdf' % out_fname)
     if args.both:
-        writeListToFile('%s.html' % args.output, output)
-        html2pdf('%s.html' % args.output, args.output, '%s.pdf' % args.output)
+        writeListToFile('%s.html' % out_fname, output)
+        html2pdf('%s.html' % out_fname, out_fname, '%s.pdf' % out_fname)
     elif args.html:
-        writeListToFile('%s.html' % args.output, output)
+        writeListToFile('%s.html' % out_fname, output)
 
 
 if __name__ == '__main__':
@@ -135,8 +135,12 @@ if __name__ == '__main__':
                         help='create html only')
     htmlpdf.add_argument('-b', '--both', action='store_true',
                         help='create pdf and html')
-    parser.add_argument('output', help='output filename')
+    parser.add_argument('-o', '--output', help='output filename')
     parser.add_argument('docs', nargs='+', help='documents to include')
     args = parser.parse_args()
 
+    if args.output:
+        out_fname = args.output
+    else:
+        out_fname = re.search('[^\.]+', args.docs[0]).group(0)
     main()
