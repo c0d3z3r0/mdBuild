@@ -112,6 +112,9 @@ def html2pdf(input, title, output):
 def main():
     checkDependencies()
 
+    viewer = {
+        'linux': {'pdf': 'evince', 'html': 'firefox'},
+        'darwin': {'pdf': 'open', 'html': 'open'}}[sys.platform]
     output = []
     output.extend(getHeader())
 
@@ -123,11 +126,22 @@ def main():
     if not args.html and not args.both:
         writeListToFile('/tmp/%s.html' % out_fname, output)
         html2pdf('/tmp/%s.html' % out_fname, out_fname, '%s.pdf' % out_fname)
+        if not args.no_open:
+            subprocess.Popen('%s %s.pdf' % (viewer['pdf'], out_fname),
+                             shell=True)
     if args.both:
         writeListToFile('%s.html' % out_fname, output)
         html2pdf('%s.html' % out_fname, out_fname, '%s.pdf' % out_fname)
+        if not args.no_open:
+            subprocess.Popen('%s %s.html' % (viewer['html'], out_fname),
+                             shell=True)
+            subprocess.Popen('%s %s.pdf' % (viewer['pdf'], out_fname),
+                             shell=True)
     elif args.html:
         writeListToFile('%s.html' % out_fname, output)
+        if not args.no_open:
+            subprocess.Popen('%s %s.html' % (viewer['html'], out_fname),
+                             shell=True)
 
 
 if __name__ == '__main__':
@@ -138,6 +152,8 @@ if __name__ == '__main__':
     htmlpdf.add_argument('-b', '--both', action='store_true',
                         help='create pdf and html')
     parser.add_argument('-o', '--output', help='output filename')
+    parser.add_argument('-n', '--no-open', action='store_true',
+                        help='do not open file after build')
     parser.add_argument('docs', nargs='+', help='documents to include')
     args = parser.parse_args()
 
