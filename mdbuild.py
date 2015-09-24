@@ -106,7 +106,7 @@ def markdown2Html(file):
 
 def html2pdf(input, title, output):
     subprocess.getoutput(
-        'wkhtmltopdf --print-media-type --title ' +
+        'wkhtmltopdf --dpi 150 --print-media-type --title ' +
         ' '.join([title, input, output])
     )
 
