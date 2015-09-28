@@ -28,8 +28,11 @@ def readFileToList(file):
 
 
 def file2base64(file):
-    f = open(file, 'rb')
-    return base64.b64encode(f.read()).decode()
+    try:
+        f = open(file, 'rb')
+        return base64.b64encode(f.read()).decode()
+    except FileNotFoundError:
+        return ""
 
 
 def writeListToFile(file, lines):
